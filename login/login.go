@@ -17,6 +17,11 @@ type Handler struct {
 	lw Writer
 }
 
+// ServeHTTP implements http.Handler.
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// TODO
+}
+
 // Checker can check logins to see if they are valid and if so return the key.
 type Checker interface {
 	LoginCheck(username, password string) (Keyer, error)
@@ -45,26 +50,26 @@ func (s KeyString) LoginKey() string {
 
 // Reader knows how to read login information from a request.
 type Reader interface {
-	LoginRead(r *http.Request, w http.ResponseWriter) (Keyer, error)
+	LoginRead(w http.ResponseWriter, r *http.Request) (Keyer, error)
 }
 
 // ReaderFunc implements Reader as a function.
-type ReaderFunc func(r *http.Request, w http.ResponseWriter) (Keyer, error)
+type ReaderFunc func(w http.ResponseWriter, r *http.Request) (Keyer, error)
 
 // LoginRead implements Reader
-func (f ReaderFunc) LoginRead(r *http.Request, w http.ResponseWriter) (Keyer, error) {
-	return f(r, w)
+func (f ReaderFunc) LoginRead(w http.ResponseWriter, r *http.Request) (Keyer, error) {
+	return f(w, r)
 }
 
 // Writer knows how to write a login key to be associated with a request.
 type Writer interface {
-	LoginWrite(r *http.Request, w http.ResponseWriter, k Keyer) error
+	LoginWrite(w http.ResponseWriter, r *http.Request, k Keyer) error
 }
 
 // WriterFunc implements Writer as a function.
-type WriterFunc func(r *http.Request, w http.ResponseWriter, k Keyer) error
+type WriterFunc func(w http.ResponseWriter, r *http.Request, k Keyer) error
 
 // LoginWrite implements Writer
-func (f WriterFunc) LoginWrite(r *http.Request, w http.ResponseWriter, k Keyer) error {
-	return f(r, w, k)
+func (f WriterFunc) LoginWrite(w http.ResponseWriter, r *http.Request, k Keyer) error {
+	return f(w, r, k)
 }
